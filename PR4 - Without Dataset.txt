@@ -1,0 +1,39 @@
+facts = {"fever", "cough"}
+
+rules = [
+    ({"fever", "cough"}, "flu"),
+    ({"flu"}, "take_rest")
+]
+
+# Forward Chaining
+def forward_chaining(facts):
+    facts = set(facts)
+
+    while True:
+        new_fact = False
+
+        for conditions, result in rules:
+            if conditions.issubset(facts) and result not in facts:
+                facts.add(result)
+                new_fact = True
+
+        if not new_fact:
+            break
+
+    return facts
+
+# Backward Chaining
+def backward_chaining(goal, facts):
+    if goal in facts:
+        return True
+
+    for conditions, result in rules:
+        if result == goal:
+            if all(backward_chaining(c, facts)
+                   for c in conditions):
+                return True
+
+    return False
+
+print("Forward:", forward_chaining(facts))
+print("Backward:", backward_chaining("take_rest", facts))
