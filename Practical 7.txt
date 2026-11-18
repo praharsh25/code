@@ -1,0 +1,76 @@
+
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+int main()
+{
+    int p1[2], p2[2], pid, fd;
+    char file[100], buffer[1000];
+    int n;
+
+    pipe(p1);
+    pipe(p2);
+
+    pid = fork();
+
+    if(pid == 0)
+    {
+        // Child Process
+        close(p1[1]);
+        close(p2[0]);
+
+        read(p1[0], file, sizeof(file));
+
+        fd = open(file, O_RDONLY);
+
+        if(fd < 0)
+        {
+            write(p2[1], "File not found!", 16);
+        }
+        else
+        {
+            while((n = read(fd, buffer, sizeof(buffer))) > 0)
+                write(p2[1], buffer, n);
+
+            close(fd);
+        }
+
+        close(p1[0]);
+        close(p2[1]);
+    }
+    else
+    {
+        // Parent Process
+        close(p1[0]);
+        close(p2[1]);
+
+        printf("Enter file name: ");
+        scanf("%99s", file);
+
+        write(p1[1], file, sizeof(file));
+
+        close(p1[1]);
+
+        printf("\nFile Contents:\n");
+
+        while((n = read(p2[0], buffer, sizeof(buffer))) > 0)
+            write(1, buffer, n);
+
+        close(p2[0]);
+
+        wait(NULL);
+    }
+
+    return 0;
+}
+
+
+
+
+Run command:
+nano pipe.c
+gcc pipe.c -o pipe
+echo "Welcome to Operating System Practical." > data.txt
+./pipe

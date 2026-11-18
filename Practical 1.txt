@@ -1,0 +1,74 @@
+
+#!/bin/bash
+
+while true
+do
+    echo "----- ADDRESS BOOK -----"
+    echo "1. Create"
+    echo "2. View"
+    echo "3. Insert"
+    echo "4. Delete"
+    echo "5. Modify"
+    echo "6. Exit"
+
+    echo "Enter your choice:"
+    read ch
+
+    case $ch in
+
+    1)
+        touch address.txt
+        echo "Address Book Created"
+        ;;
+
+    2)
+        cat address.txt
+        ;;
+
+    3)
+        echo "Enter Name:"
+        read name
+        echo "Enter Phone:"
+        read phone
+        echo "$name $phone" >> address.txt
+        echo "Record Inserted"
+        ;;
+
+    4)
+        echo "Enter Name to Delete:"
+        read name
+        grep -v "^$name " address.txt > temp.txt
+        mv temp.txt address.txt
+        echo "Record Deleted"
+        ;;
+
+    5)
+        echo "Enter Name to Modify:"
+        read name
+        grep -v "^$name " address.txt > temp.txt
+        echo "Enter New Phone:"
+        read phone
+        echo "$name $phone" >> temp.txt
+        mv temp.txt address.txt
+        echo "Record Modified"
+        ;;
+
+    6)
+        echo "Exit"
+        break
+        ;;
+
+    *)
+        echo "Invalid Choice"
+        ;;
+
+    esac
+done
+
+
+
+
+Run Commands:
+nano address.sh
+chmod +x address.sh
+./address.sh

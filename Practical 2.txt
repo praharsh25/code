@@ -1,0 +1,93 @@
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+
+int main()
+{
+    int a[10], n, i, j, temp;
+    int pid;
+
+    printf("Enter number of elements: ");
+    scanf("%d", &n);
+
+    printf("Enter elements: ");
+    for(i = 0; i < n; i++)
+        scanf("%d", &a[i]);
+
+    pid = fork();
+
+    if(pid == 0)
+    {
+        // Child Process
+        for(i = 0; i < n-1; i++)
+            for(j = 0; j < n-i-1; j++)
+                if(a[j] > a[j+1])
+                {
+                    temp = a[j];
+                    a[j] = a[j+1];
+                    a[j+1] = temp;
+                }
+
+        printf("\nChild PID: %d\n", getpid());
+        printf("Child Sorted Array: ");
+        for(i = 0; i < n; i++)
+            printf("%d ", a[i]);
+
+        exit(0);
+    }
+    else if(pid > 0)
+    {
+        // Parent Process
+        for(i = 0; i < n-1; i++)
+            for(j = 0; j < n-i-1; j++)
+                if(a[j] > a[j+1])
+                {
+                    temp = a[j];
+                    a[j] = a[j+1];
+                    a[j+1] = temp;
+                }
+
+        printf("\nParent PID: %d\n", getpid());
+        printf("Parent Sorted Array: ");
+        for(i = 0; i < n; i++)
+            printf("%d ", a[i]);
+
+        wait(NULL);
+        printf("\nChild process completed.\n");
+
+        // Zombie Demonstration
+        pid = fork();
+
+        if(pid == 0)
+            exit(0);
+        else
+        {
+            sleep(5);
+            printf("\nZombie demonstration completed.\n");
+            wait(NULL);
+        }
+
+        // Orphan Demonstration
+        pid = fork();
+
+        if(pid == 0)
+        {
+            sleep(3);
+            printf("\nOrphan Child PID: %d\n", getpid());
+            printf("New Parent PID: %d\n", getppid());
+        }
+        else
+            printf("\nOrphan Parent terminated.\n");
+    }
+
+    return 0;
+}
+
+
+
+Run commands:
+nano process.c
+gcc process.c -o process
+./process

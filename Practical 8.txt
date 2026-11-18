@@ -1,0 +1,113 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+
+void sort(int a[], int n) {
+    int i, j, t;
+    for(i = 0; i < n; i++)
+        for(j = i + 1; j < n; j++)
+            if(a[i] > a[j]) {
+                t = a[i];
+                a[i] = a[j];
+                a[j] = t;
+            }
+}
+
+int main() {
+    int a[50], done[50] = {0};
+    int n, head, size, i, j, pos, total = 0;
+
+    printf("Enter disk size: ");
+    scanf("%d", &size);
+
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+
+    printf("Enter request queue: ");
+    for(i = 0; i < n; i++)
+        scanf("%d", &a[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    // SSTF
+    int h = head;
+    total = 0;
+    printf("\nSSTF: %d", h);
+
+    for(i = 0; i < n; i++) {
+        int min = 9999;
+        for(j = 0; j < n; j++) {
+            if(!done[j] && abs(a[j] - h) < min) {
+                min = abs(a[j] - h);
+                pos = j;
+            }
+        }
+        done[pos] = 1;
+        total += abs(a[pos] - h);
+        h = a[pos];
+        printf(" -> %d", h);
+    }
+    printf("\nTotal SSTF movement = %d\n", total);
+
+    // Sort requests
+    sort(a, n);
+
+    // SCAN - moving towards higher cylinders
+    h = head;
+    total = 0;
+    printf("\nSCAN: %d", h);
+
+    for(i = 0; i < n; i++)
+        if(a[i] >= head) {
+            total += abs(a[i] - h);
+            h = a[i];
+            printf(" -> %d", h);
+        }
+
+    if(h != size - 1) {
+        total += abs((size - 1) - h);
+        h = size - 1;
+        printf(" -> %d", h);
+    }
+
+    for(i = n - 1; i >= 0; i--)
+        if(a[i] < head) {
+            total += abs(a[i] - h);
+            h = a[i];
+            printf(" -> %d", h);
+        }
+
+    printf("\nTotal SCAN movement = %d\n", total);
+
+    // C-LOOK - moving towards higher cylinders
+    h = head;
+    total = 0;
+    printf("\nC-LOOK: %d", h);
+
+    for(i = 0; i < n; i++)
+        if(a[i] >= head) {
+            total += abs(a[i] - h);
+            h = a[i];
+            printf(" -> %d", h);
+        }
+
+    for(i = 0; i < n; i++)
+        if(a[i] < head) {
+            total += abs(a[i] - h);
+            h = a[i];
+            printf(" -> %d", h);
+        }
+
+    printf("\nTotal C-LOOK movement = %d\n", total);
+
+    return 0;
+}
+
+
+
+
+Run command:
+nano disk.c
+gcc disk.c -o disk
+./disk
